@@ -1,0 +1,154 @@
+{
+  "name": "elasticsearch_cluster_yellow_incident_on_kubernetes",
+  "description": "An Elasticsearch Cluster Yellow incident occurs when there is a degradation in the Elasticsearch cluster's health. This can lead to a decrease in performance and availability of the Elasticsearch service. The incident is triggered when the status of the Elasticsearch cluster changes to yellow, indicating that some primary or replica shards are unavailable. The incident requires immediate attention to restore the Elasticsearch service's health and prevent any further impact on the end-users.",
+  "params": [
+    {
+      "name": "ELASTICSEARCH_CONTAINER_NAME",
+      "value": ""
+    },
+    {
+      "name": "ELASTICSEARCH_DEPLOYMENT_NAME",
+      "value": ""
+    },
+    {
+      "name": "ELASTICSEARCH_POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "YOUR_ELASTICSEARCH_LABEL",
+      "value": ""
+    },
+    {
+      "name": "NEW_REPLICA_COUNT",
+      "value": ""
+    },
+    {
+      "name": "ELASTICSEARCH_NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Elasticsearch Cluster Yellow Incident on Kubernetes\nAn Elasticsearch Cluster Yellow incident occurs when there is a degradation in the Elasticsearch cluster's health. This can lead to a decrease in performance and availability of the Elasticsearch service. The incident is triggered when the status of the Elasticsearch cluster changes to yellow, indicating that some primary or replica shards are unavailable. The incident requires immediate attention to restore the Elasticsearch service's health and prevent any further impact on the end-users."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Elasticsearch cluster health"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | `curl -X GET 'http://localhost:9200/_cluster/health?pretty'`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Elasticsearch cluster status"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | `curl -X GET 'http://localhost:9200/_cat/health?v'`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List the Elasticsearch indices and their statuses"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | `curl -X GET 'http://localhost:9200/_cat/indices?v'`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List the Elasticsearch nodes and their statuses"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | `curl -X GET 'http://localhost:9200/_cat/nodes?v'`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Elasticsearch logs for any errors or warnings"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${ELASTICSEARCH_POD_NAME} ${ELASTICSEARCH_CONTAINER_NAME}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Kubernetes events for any related issues"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get events --field-selector involvedObject.name=${ELASTICSEARCH_POD_NAME}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the disk usage of the Elasticsearch cluster"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl -n $NAMESPACE exec -it $DEPLOYMENT_NAME -- df -h`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Network connectivity issues: Network connectivity issues between the Elasticsearch nodes can cause the primary and replica shards to become unavailable, leading to a yellow status."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_elasticsearch_network_check_script($ELASTICSEARCH_POD_NAME, $YOUR_ELASTICSEARCH_LABEL)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increase the number of nodes in the Elasticsearch cluster to improve the cluster's resilience and availability."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_increase_elasticsearch_nodes($ELASTICSEARCH_DEPLOYMENT_NAME, $NEW_REPLICA_COUNT, $ELASTICSEARCH_NAMESPACE, $NAMESPACE)"
+    }
+  ]
+}
